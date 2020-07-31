@@ -7,7 +7,7 @@
 #include "Perception/PawnSensingComponent.h"
 
 // Sets default values
-ACorporisMinion::ACorporisMinion() : MinionHP(800), bOnSeePawn(false), bOnHearNoise(false), DeadTimer(1.0f)
+ACorporisMinion::ACorporisMinion() : MinionHP(800), bOnSeePawn(false), bOnHearNoise(false), DeadTimer(1.0f), NextAttackTime(0)
 {
      // Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
@@ -26,6 +26,10 @@ ACorporisMinion::ACorporisMinion() : MinionHP(800), bOnSeePawn(false), bOnHearNo
     PawnSensor->SensingInterval = 0.5f;
     PawnSensor->SightRadius = 3000.0f;
     PawnSensor->SetPeripheralVisionAngle(70.0f);
+    
+    static ConstructorHelpers::FObjectFinder<USoundWave> WEAPON_FIRE(TEXT("/Game/SciFiWeapLight/Sound/Rifle/Wavs/Rifle_Fire06"));
+    if (WEAPON_FIRE.Succeeded())
+        WeaponFireSoundWave = WEAPON_FIRE.Object;
 }
 
 // Called when the game starts or when spawned
@@ -78,7 +82,7 @@ float ACorporisMinion::TakeDamage(float DamageAmount, struct FDamageEvent const 
     
     auto CorporisAIController = Cast<ACorporisAIController>(GetController());
     
-    if (HitResult.BoneName == "Head")
+    if (HitResult.BoneName == "head")
     {
         CorporisAIController->StopAI();
         
@@ -116,6 +120,14 @@ void ACorporisMinion::PossessedBy(AController* NewController)
 
 void ACorporisMinion::Attack()
 {
+    if (NextAttackTime > GetWorld()->GetTimeSeconds())
+    {
+        CorporisAnim->SetAttackAngle(3);
+        return;
+    }
+    
+    NextAttackTime = GetWorld()->GetTimeSeconds() + 0.6f;
+    
     FHitResult HitResult;
     FCollisionQueryParams Params(NAME_None, false, this);
     bool bResult = GetWorld()->SweepSingleByChannel(HitResult, GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 2000.0f, FQuat::Identity, ECollisionChannel::ECC_GameTraceChannel2, FCollisionShape::MakeSphere(500.0f), Params);
@@ -128,16 +140,18 @@ void ACorporisMinion::Attack()
         
         else
         {
-            float HightInterval = Target->GetActorLocation().Z - GetActorLocation().Z;
+            float HightGap = Target->GetActorLocation().Z - GetActorLocation().Z;
             
-            if (HightInterval > 200.0f)
+            if (HightGap > 200.0f)
                 CorporisAnim->SetAttackAngle((int)EAngle::TOP);
             
-            else if (HightInterval < -200.0f)
+            else if (HightGap < -200.0f)
                 CorporisAnim->SetAttackAngle((int)EAngle::BTM);
             
             else
                 CorporisAnim->SetAttackAngle((int)EAngle::MID);
+            
+            UGameplayStatics::SpawnSoundAtLocation(this, WeaponFireSoundWave, GetActorLocation(), GetActorRotation(), 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
             
             UGameplayStatics::ApplyPointDamage(Target, 50.0f, GetActorForwardVector(), HitResult, GetController(), this, nullptr);
         }

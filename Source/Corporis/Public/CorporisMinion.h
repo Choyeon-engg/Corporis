@@ -45,10 +45,18 @@ public:
     FOnHPChangedDelegate OnHPChanged;
     
 private:
+    UFUNCTION()
+    void OnSeePawn(APawn* OtherPawn) { bOnSeePawn = true; }
+    
+    UFUNCTION()
+    void OnHearNoise(APawn* OtherActor, const FVector & Location, float Volume) { bOnHearNoise = true; }
+    
+private:
     int32 MinionHP;
     bool bOnSeePawn;
     bool bOnHearNoise;
     float DeadTimer;
+    float NextAttackTime;
     
     FTimerHandle DeadTimerHandle = { };
     
@@ -65,9 +73,6 @@ private:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Awareness, Meta = (AllowPrivateAccess = true))
     class UPawnSensingComponent* PawnSensor;
     
-    UFUNCTION()
-    void OnSeePawn(APawn* OtherPawn) { bOnSeePawn = true; }
-    
-    UFUNCTION()
-    void OnHearNoise(APawn* OtherActor, const FVector & Location, float Volume) { bOnHearNoise = true; }
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, Meta = (AllowPrivateAccess = true))
+    class USoundWave* WeaponFireSoundWave;
 };
