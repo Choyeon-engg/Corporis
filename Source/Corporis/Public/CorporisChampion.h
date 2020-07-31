@@ -56,4 +56,10 @@ private:
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, Meta = (AllowPrivateAccess = true))
     class UPawnNoiseEmitterComponent* NoiseEmitter;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, Meta = (AllowPrivateAccess = true))
+    class USoundWave* WeaponFireSoundWave;
+    
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, Meta = (AllowPrivateAccess = true))
+    class USoundWave* ImpactBodySoundWave;
 };

@@ -14,6 +14,14 @@ ACorporisChampion::ACorporisChampion() : ChampionHP(8000), LastFootstep(0.0f), D
     GetMesh()->SetCollisionProfileName(TEXT("CorporisActor"));
     
     NoiseEmitter = CreateDefaultSubobject<UPawnNoiseEmitterComponent>(TEXT("Noise Emitter"));
+    
+    static ConstructorHelpers::FObjectFinder<USoundWave> WEAPON_FIRE(TEXT("/Game/SciFiWeapDark/Sound/Rifle/Wavs/RifleA_Fire06"));
+    if (WEAPON_FIRE.Succeeded())
+        WeaponFireSoundWave = WEAPON_FIRE.Object;
+    
+    static ConstructorHelpers::FObjectFinder<USoundWave> IMPACT_BODY(TEXT("/Game/SciFiWeapDark/Sound/Rifle/Wavs/Rifle_ImpactBody04"));
+    if (IMPACT_BODY.Succeeded())
+        ImpactBodySoundWave = IMPACT_BODY.Object;
 }
 
 // Called when the game starts or when spawned
@@ -74,7 +82,9 @@ float ACorporisChampion::TakeDamage(float DamageAmount, struct FDamageEvent cons
     FVector ImpulseDirection;
     DamageEvent.GetBestHitInfo(this, DamageCauser, HitResult, ImpulseDirection);
     
-    if (HitResult.BoneName == "Head")
+    UGameplayStatics::SpawnSoundAtLocation(this, ImpactBodySoundWave, GetActorLocation(), GetActorRotation(), 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
+    
+    if (HitResult.BoneName == "head")
     {
         ChampionHP = 0;
         OnHPChanged.Broadcast();
@@ -92,8 +102,6 @@ float ACorporisChampion::TakeDamage(float DamageAmount, struct FDamageEvent cons
         if (ChampionHP <= 0)
             CorporisAnim->SetIsDead(true);
     }
-    
-    OnHPChanged.Broadcast();
     
     return FinalDamage;
 }
@@ -124,6 +132,7 @@ void ACorporisChampion::Attack()
     bool bResult = GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 3000.0f, ECollisionChannel::ECC_GameTraceChannel1, Params);
     auto Target = Cast<ACorporisMinion>(HitResult.Actor);
     
+    UGameplayStatics::SpawnSoundAtLocation(this, WeaponFireSoundWave, GetActorLocation(), GetActorRotation(), 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
     MakeNoise(1.0, this, FVector::ZeroVector);
     
     if (bResult && Target)
