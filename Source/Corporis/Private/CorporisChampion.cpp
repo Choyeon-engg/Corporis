@@ -3,7 +3,6 @@
 
 #include "CorporisChampion.h"
 #include "CorporisMinion.h"
-#include "CorporisWeapon.h"
 #include "Components/PawnNoiseEmitterComponent.h"
 
 // Sets default values
@@ -106,21 +105,6 @@ void ACorporisChampion::PossessedBy(AController* NewController)
     GetCharacterMovement()->MaxWalkSpeed = 500.0f;
 }
 
-void ACorporisChampion::SetWeapon(ACorporisWeapon* NewWeapon)
-{
-    FName WeaponSocket(TEXT("hand_r"));
-    
-    if (CurrentWeapon)
-        CurrentWeapon->DetachFromActor(FDetachmentTransformRules::KeepRelativeTransform);
-    
-    if (NewWeapon)
-    {
-        NewWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetNotIncludingScale, WeaponSocket);
-        NewWeapon->SetOwner(this);
-        CurrentWeapon = NewWeapon;
-    }
-}
-
 bool ACorporisChampion::ChampionIsDead() const
 {
     if (ChampionHP <= 0) { return true; }
@@ -137,11 +121,11 @@ void ACorporisChampion::Attack()
 {
     FHitResult HitResult;
     FCollisionQueryParams Params(NAME_None, false, this);
-    bool bResult = GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), GetActorLocation() + GetActorForwardVector() * (CurrentWeapon ? CurrentWeapon->GetAttackRange() : 3000.0f), ECollisionChannel::ECC_GameTraceChannel1, Params);
+    bool bResult = GetWorld()->LineTraceSingleByChannel(HitResult, GetActorLocation(), GetActorLocation() + GetActorForwardVector() * 3000.0f, ECollisionChannel::ECC_GameTraceChannel1, Params);
     auto Target = Cast<ACorporisMinion>(HitResult.Actor);
     
     MakeNoise(1.0, this, FVector::ZeroVector);
     
     if (bResult && Target)
-        UGameplayStatics::ApplyPointDamage(Target, (CurrentWeapon ? CurrentWeapon->GetAttackPower() : 80.0f), GetActorForwardVector(), HitResult, GetController(), this, nullptr);
+        UGameplayStatics::ApplyPointDamage(Target, 80.0f, GetActorForwardVector(), HitResult, GetController(), this, nullptr);
 }

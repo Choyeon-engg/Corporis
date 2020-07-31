@@ -34,7 +34,6 @@ public:
     
     virtual void PossessedBy(AController* NewController) override;
     
-    void SetWeapon(class ACorporisWeapon* NewWeapon);
     bool ChampionIsDead() const;
     float GetHPRatio();
     
@@ -57,7 +56,4 @@ private:
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, Meta = (AllowPrivateAccess = true))
     class UPawnNoiseEmitterComponent* NoiseEmitter;
-    
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon, Meta = (AllowPrivateAccess = true))
-    class ACorporisWeapon* CurrentWeapon;
 };
