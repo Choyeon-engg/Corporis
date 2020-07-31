@@ -3,7 +3,7 @@
 
 #include "CorporisAnimInstance.h"
 
-UCorporisAnimInstance::UCorporisAnimInstance() : CurrentPawnSpeed(0.0f), bIsDead(false), iAttackAngle(3), bIsSit(false) { }
+UCorporisAnimInstance::UCorporisAnimInstance() : CurrentPawnSpeed(0.0f), bIsDead(false), iAttackAngle(3), bIsSit(false), bIsDamaged(false) { }
 
 void UCorporisAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 {
