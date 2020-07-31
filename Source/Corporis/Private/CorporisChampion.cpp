@@ -84,11 +84,14 @@ float ACorporisChampion::TakeDamage(float DamageAmount, struct FDamageEvent cons
     
     UGameplayStatics::SpawnSoundAtLocation(this, ImpactBodySoundWave, GetActorLocation(), GetActorRotation(), 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
     
+    GetWorld()->GetFirstPlayerController()->PlayerCameraManager->PlayCameraShake(CameraShake, 1.0f);
+    
     if (HitResult.BoneName == "head")
     {
         ChampionHP = 0;
         OnHPChanged.Broadcast();
         
+        DisableInput(GetWorld()->GetFirstPlayerController());
         CorporisAnim->SetIsDead(true);
     }
     
@@ -100,7 +103,10 @@ float ACorporisChampion::TakeDamage(float DamageAmount, struct FDamageEvent cons
         CorporisAnim->SetIsDamaged(true);
         
         if (ChampionHP <= 0)
+        {
+            DisableInput(GetWorld()->GetFirstPlayerController());
             CorporisAnim->SetIsDead(true);
+        }
     }
     
     return FinalDamage;
@@ -134,6 +140,8 @@ void ACorporisChampion::Attack()
     
     UGameplayStatics::SpawnSoundAtLocation(this, WeaponFireSoundWave, GetActorLocation(), GetActorRotation(), 1.0f, 1.0f, 0.0f, nullptr, nullptr, true);
     MakeNoise(1.0, this, FVector::ZeroVector);
+    
+    GetWorld()->GetFirstPlayerController()->PlayerCameraManager->PlayCameraShake(CameraShake, 1.0f);
     
     if (bResult && Target)
         UGameplayStatics::ApplyPointDamage(Target, 80.0f, GetActorForwardVector(), HitResult, GetController(), this, nullptr);

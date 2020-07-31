@@ -62,4 +62,7 @@ private:
     
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Noise, Meta = (AllowPrivateAccess = true))
     class USoundWave* ImpactBodySoundWave;
+    
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Camera, Meta = (AllowPrivateAccess = true))
+    TSubclassOf<UCameraShake> CameraShake;
 };
